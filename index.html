@@ -1,0 +1,1614 @@
+<!DOCTYPE html>
+
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Zvíře Duše — Projekt Moudrost</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#F0F4FF;
+  --white:#FFFFFF;
+  --ink:#1A1A2E;
+  --ink2:#5A5A7A;
+  --ink3:#9999BB;
+  --A:#FF6B2B;--Ad:#C43D00;--Ag:rgba(255,107,43,.22);
+  --sp:cubic-bezier(.34,1.56,.64,1);
+  --ease:cubic-bezier(.4,0,.2,1);
+  --r:24px;
+}
+html,body{min-height:100vh;overflow-x:hidden;font-family:'Nunito',sans-serif;background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased}
+
+/* ─── BG BLOBS ─── */
+.blob{position:fixed;border-radius:50%;filter:blur(90px);pointer-events:none;z-index:0;animation:blobmove 10s ease-in-out infinite}
+.b1{width:500px;height:500px;top:-180px;left:-180px;background:rgba(255,107,43,.12);animation-delay:0s}
+.b2{width:400px;height:400px;bottom:-120px;right:-120px;background:rgba(100,80,255,.1);animation-delay:3s}
+.b3{width:350px;height:350px;top:40%;right:-80px;background:rgba(0,220,180,.09);animation-delay:6s}
+@keyframes blobmove{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(24px,20px) scale(1.1)}}
+
+/* ─── SCREENS ─── */
+.scr{position:fixed;inset:0;z-index:10;overflow-y:auto;overflow-x:hidden;display:none;flex-direction:column;align-items:center;-webkit-overflow-scrolling:touch}
+.scr.on{display:flex}
+
+/* ═══════════════════ WELCOME ═══════════════════ */
+#s-welcome{justify-content:center;padding:44px 22px 56px;text-align:center;background:var(–bg)}
+.wlc{max-width:380px;width:100%;position:relative;z-index:2}
+.wlc-animals{display:flex;justify-content:center;flex-wrap:wrap;gap:8px;margin-bottom:24px}
+.wa{
+width:58px;height:58px;border-radius:18px;display:flex;align-items:center;justify-content:center;
+font-size:2rem;background:var(–white);border:3px solid #E8E8F8;
+box-shadow:0 4px 0 #D0D0E8,0 8px 16px rgba(0,0,0,.08);
+animation:wabounce 3s ease-in-out infinite;animation-delay:var(–d,0s);
+transition:all .2s var(–sp);
+}
+@keyframes wabounce{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-10px) rotate(3deg)}}
+.wlc-title{font-family:‘Fredoka One’,cursive;font-size:3rem;line-height:1.05;margin-bottom:10px;
+background:linear-gradient(135deg,#FF6B2B 0%,#FF2D78 55%,#7C3AED 100%);
+-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.wlc-sub{font-size:.98rem;font-weight:800;color:var(–ink2);line-height:1.7;margin-bottom:28px}
+.name-wrap{position:relative;margin-bottom:16px}
+.name-field{
+width:100%;padding:18px 22px;border-radius:20px;background:var(–white);
+border:3px solid #E0E0F0;font-family:‘Fredoka One’,cursive;font-size:1.4rem;
+color:var(–ink);text-align:center;outline:none;-webkit-appearance:none;
+box-shadow:0 4px 0 #D0D0E8,0 8px 20px rgba(0,0,0,.06);transition:all .2s;
+}
+.name-field::placeholder{color:#C0C0D8}
+.name-field:focus{border-color:var(–A);box-shadow:0 4px 0 var(–Ad),0 0 0 5px var(–Ag)}
+.bigbtn{
+display:block;width:100%;padding:20px 24px;border-radius:20px;border:none;cursor:pointer;
+font-family:‘Fredoka One’,cursive;font-size:1.4rem;color:#fff;-webkit-appearance:none;
+position:relative;overflow:hidden;transition:all .15s var(–sp);
+background:linear-gradient(135deg,#FF6B2B,#FF2D78);
+box-shadow:0 8px 0 #AA0040,0 12px 28px rgba(255,45,120,.3);
+}
+.bigbtn:active{transform:translateY(8px);box-shadow:0 0 0 #AA0040}
+.bigbtn::after{content:’’;position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.18) 0%,transparent 50%);border-radius:20px;pointer-events:none}
+.wlc-footer{font-size:.78rem;font-weight:800;color:var(–ink3);margin-top:16px;line-height:1.6}
+
+/* ═══════════════════ APP SHELL ═══════════════════ */
+#s-app{padding:0 0 84px;justify-content:flex-start;background:var(–bg)}
+.page{display:none;flex-direction:column;width:100%;max-width:480px;animation:pagein .3s var(–sp)}
+.page.on{display:flex}
+@keyframes pagein{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+/* BOTTOM NAV */
+.bnav{
+position:fixed;bottom:0;left:0;right:0;z-index:200;
+background:rgba(255,255,255,.96);border-top:2px solid #E8E8F4;
+display:none;justify-content:space-around;align-items:flex-end;
+padding:8px 0 max(env(safe-area-inset-bottom),8px);
+backdrop-filter:blur(20px);
+}
+.bnav.on{display:flex}
+.nb{
+flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;
+background:none;border:none;cursor:pointer;-webkit-appearance:none;
+font-family:‘Fredoka One’,cursive;font-size:.64rem;color:var(–ink3);
+padding:4px 0 2px;transition:all .2s var(–sp);
+}
+.nb-ic{font-size:1.65rem;display:block;transition:all .25s var(–sp)}
+.nb.on{color:var(–A)}
+.nb.on .nb-ic{transform:scale(1.25) translateY(-4px);filter:drop-shadow(0 4px 6px var(–Ag))}
+.nb-pip{width:6px;height:6px;border-radius:50%;background:var(–A);margin:0 auto;opacity:0;transition:.2s}
+.nb.on .nb-pip{opacity:1}
+
+/* ═══════════════════ SECTION HEADER ═══════════════════ */
+.sec-header{padding:22px 18px 4px;display:flex;align-items:flex-end;justify-content:space-between}
+.sec-title{font-family:‘Fredoka One’,cursive;font-size:2rem;color:var(–ink);line-height:1.1}
+.sec-sub{font-size:.88rem;font-weight:800;color:var(–ink2);padding:0 18px 18px;line-height:1.6}
+.sec-action{font-family:‘Fredoka One’,cursive;font-size:.82rem;color:var(–A);cursor:pointer;padding:4px 10px;background:var(–Ag);border-radius:50px;border:none;-webkit-appearance:none}
+
+/* ═══════════════════ HOME PAGE ═══════════════════ */
+.home-pg{padding:0 0 8px}
+
+/* greeting strip */
+.greeting-strip{
+margin:18px 18px 0;border-radius:26px;padding:20px 22px;
+background:linear-gradient(135deg,var(–A),#FF2D78);
+box-shadow:0 6px 0 var(–Ad),0 10px 30px rgba(255,45,120,.25);
+position:relative;overflow:hidden;
+}
+.gs-bg{position:absolute;right:-20px;top:-20px;font-size:7rem;opacity:.15;line-height:1}
+.gs-hi{font-family:‘Fredoka One’,cursive;font-size:.85rem;letter-spacing:1px;color:rgba(255,255,255,.7);margin-bottom:2px}
+.gs-name{font-family:‘Fredoka One’,cursive;font-size:2.2rem;color:#fff;line-height:1.1}
+.gs-sub{font-size:.85rem;font-weight:800;color:rgba(255,255,255,.75);margin-top:4px}
+.settings-ico{position:absolute;top:16px;right:16px;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.2);border:none;cursor:pointer;font-size:1.1rem;-webkit-appearance:none;transition:.15s var(–sp);display:flex;align-items:center;justify-content:center}
+.settings-ico:active{transform:scale(.88)}
+
+/* animal card */
+.animal-card{
+margin:12px 18px 0;border-radius:26px;padding:22px 20px;background:var(–white);
+border:3px solid #E8E8F4;box-shadow:0 6px 0 #D0D0E8,0 12px 32px rgba(0,0,0,.08);
+position:relative;overflow:hidden;
+}
+.ac-stripe{position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(–A),#FF2D78)}
+.ac-top{display:flex;align-items:center;gap:14px;margin-bottom:12px}
+.ac-emoji{font-size:4rem;animation:floaty 3s ease-in-out infinite;filter:drop-shadow(0 6px 10px var(–Ag))}
+@keyframes floaty{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-10px) rotate(4deg)}}
+.ac-meta{flex:1}
+.ac-type{font-family:‘Fredoka One’,cursive;font-size:.72rem;letter-spacing:3px;color:var(–A);margin-bottom:2px}
+.ac-name{font-family:‘Fredoka One’,cursive;font-size:1.9rem;color:var(–ink);line-height:1.1}
+.ac-czech{font-size:.88rem;font-weight:800;color:var(–ink2);margin-top:2px}
+.ac-desc{font-size:.88rem;font-weight:700;color:var(–ink2);line-height:1.65;margin-bottom:14px}
+.ac-stoic-pill{
+display:inline-flex;align-items:center;gap:6px;padding:6px 16px;border-radius:50px;
+background:linear-gradient(135deg,rgba(124,58,237,.1),rgba(255,45,120,.1));
+border:2px solid rgba(124,58,237,.2);
+font-family:‘Fredoka One’,cursive;font-size:.78rem;color:#7C3AED;
+}
+
+/* no-animal nudge */
+.no-animal{
+margin:12px 18px 0;border-radius:26px;padding:24px 20px;background:var(–white);
+border:3px dashed #D0D0E8;text-align:center;
+}
+.na-em{font-size:3.5rem;display:block;margin-bottom:10px;animation:floaty 3s ease-in-out infinite}
+.na-t{font-family:‘Fredoka One’,cursive;font-size:1.4rem;color:var(–ink);margin-bottom:6px}
+.na-s{font-size:.88rem;font-weight:700;color:var(–ink2);margin-bottom:16px;line-height:1.6}
+.go-btn{
+padding:14px 28px;border-radius:18px;border:none;cursor:pointer;-webkit-appearance:none;
+font-family:‘Fredoka One’,cursive;font-size:1rem;color:#fff;
+background:linear-gradient(135deg,var(–A),#FF2D78);
+box-shadow:0 5px 0 var(–Ad),0 8px 20px var(–Ag);transition:all .15s var(–sp);
+}
+.go-btn:active{transform:translateY(5px);box-shadow:0 0 0 var(–Ad)}
+
+/* wisdom card */
+.wisdom-card{
+margin:12px 18px 0;border-radius:26px;padding:20px 22px;background:var(–white);
+border:3px solid #E8F0FF;box-shadow:0 4px 0 #C8D8F0,0 8px 24px rgba(0,80,255,.06);
+background:linear-gradient(135deg,#F5F0FF,#EEF5FF);
+}
+.wc-label{font-family:‘Fredoka One’,cursive;font-size:.72rem;letter-spacing:2px;color:#7C3AED;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.wc-quote{font-size:1rem;font-weight:800;font-style:italic;color:var(–ink);line-height:1.7;margin-bottom:8px}
+.wc-by{font-family:‘Fredoka One’,cursive;font-size:.82rem;color:#7C3AED}
+
+/* quick tiles */
+.tiles-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 18px 0}
+.tile{
+border-radius:22px;padding:18px 16px;cursor:pointer;-webkit-appearance:none;border:none;
+background:var(–white);border:3px solid #E8E8F4;text-align:center;width:100%;
+box-shadow:0 5px 0 #D0D0E8,0 8px 20px rgba(0,0,0,.06);transition:all .18s var(–sp);
+}
+.tile:active{transform:translateY(5px);box-shadow:0 0 0 #D0D0E8}
+.tile-ic{font-size:2.2rem;display:block;margin-bottom:8px}
+.tile-t{font-family:‘Fredoka One’,cursive;font-size:.95rem;color:var(–ink);margin-bottom:2px}
+.tile-d{font-size:.72rem;font-weight:800;color:var(–ink3);line-height:1.3}
+.tile.feel{border-color:#FFE040;box-shadow:0 5px 0 #CCA000}
+.tile.jour{border-color:#00E5CC;box-shadow:0 5px 0 #009988}
+
+/* ═══════════════════ QUIZ PAGE ═══════════════════ */
+.quiz-pg{padding:0 0 8px}
+
+/* intro */
+.qi-wrap{padding:22px 18px 16px;text-align:center}
+.qi-em{font-size:5rem;display:block;margin-bottom:14px;animation:floaty 3s ease-in-out infinite}
+.qi-title{font-family:‘Fredoka One’,cursive;font-size:2.4rem;
+background:linear-gradient(135deg,#FF9500,#FF2D78);
+-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+margin-bottom:8px}
+.qi-sub{font-size:.92rem;font-weight:800;color:var(–ink2);line-height:1.7;margin-bottom:20px}
+
+/* animal parade */
+.parade{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:20px}
+.pa-cell{
+aspect-ratio:1;border-radius:16px;background:var(–white);border:3px solid #E8E8F4;
+box-shadow:0 4px 0 #D0D0E8;display:flex;flex-direction:column;align-items:center;
+justify-content:center;gap:3px;transition:all .2s var(–sp);cursor:default;
+}
+.pa-cell:nth-child(odd){animation:floaty 3s ease-in-out infinite}
+.pa-cell:nth-child(even){animation:floaty 3s ease-in-out infinite;animation-delay:1.5s}
+.pa-em{font-size:1.8rem}
+.pa-nm{font-family:‘Fredoka One’,cursive;font-size:.6rem;color:var(–ink3);text-align:center;line-height:1.2;padding:0 2px}
+.start-quiz-btn{
+display:block;width:100%;padding:20px;border-radius:22px;border:none;cursor:pointer;
+font-family:‘Fredoka One’,cursive;font-size:1.3rem;color:#fff;-webkit-appearance:none;
+background:linear-gradient(135deg,#FF9500,#FF2D78);
+box-shadow:0 7px 0 #AA0020,0 12px 28px rgba(255,45,120,.3);
+transition:all .15s var(–sp);
+}
+.start-quiz-btn:active{transform:translateY(7px);box-shadow:0 0 0 #AA0020}
+
+/* quiz in progress */
+.qip{display:none}.qip.on{display:block;padding:18px 18px 8px}
+.q-bar-wrap{margin-bottom:20px}
+.q-bar{height:10px;background:#E8E8F4;border-radius:10px;overflow:hidden;margin-bottom:6px;box-shadow:inset 0 2px 4px rgba(0,0,0,.08)}
+.q-fill{height:100%;border-radius:10px;background:linear-gradient(90deg,var(–A),#FF2D78);transition:width .5s var(–ease);box-shadow:0 2px 8px rgba(255,45,120,.35)}
+.q-meta{display:flex;justify-content:space-between;align-items:center}
+.q-num{font-family:‘Fredoka One’,cursive;font-size:.8rem;color:var(–ink3)}
+.q-dim-tag{
+font-family:‘Fredoka One’,cursive;font-size:.75rem;padding:4px 14px;border-radius:50px;
+background:var(–white);border:2px solid #E0E0F0;color:var(–A);
+box-shadow:0 2px 0 #D0D0E8;
+}
+.q-card{
+background:var(–white);border-radius:26px;padding:26px 22px;
+border:3px solid #E8E8F4;box-shadow:0 6px 0 #D0D0E8,0 12px 32px rgba(0,0,0,.08);
+margin-bottom:16px;animation:qcardIn .35s var(–sp);
+}
+@keyframes qcardIn{from{opacity:0;transform:translateY(18px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+.q-qnum{font-family:‘Fredoka One’,cursive;font-size:.78rem;color:var(–ink3);margin-bottom:10px}
+.q-qtext{font-family:‘Fredoka One’,cursive;font-size:1.5rem;color:var(–ink);line-height:1.3}
+.q-opts{display:flex;flex-direction:column;gap:11px;margin-top:18px}
+.qo{
+display:flex;align-items:center;gap:13px;padding:16px 18px;
+border-radius:18px;border:3px solid #E8E8F4;background:var(–bg);
+cursor:pointer;-webkit-appearance:none;text-align:left;width:100%;
+font-size:.95rem;font-weight:800;color:var(–ink2);
+box-shadow:0 4px 0 #D0D0E8;transition:all .18s var(–sp);
+}
+.qo:active,.qo.picked{
+background:linear-gradient(135deg,rgba(255,107,43,.08),rgba(255,45,120,.06));
+border-color:var(–A);color:var(–ink);
+transform:scale(.97) translateY(2px);box-shadow:0 0 0 #D0D0E8;
+}
+.qo-lbl{
+width:34px;height:34px;border-radius:50%;flex-shrink:0;
+background:var(–white);border:3px solid #E0E0F0;
+display:flex;align-items:center;justify-content:center;
+font-family:‘Fredoka One’,cursive;font-size:.88rem;color:var(–A);
+box-shadow:0 3px 0 #D0D0E8;
+}
+.qo-ico{font-size:1.6rem;flex-shrink:0}
+
+/* portrait section */
+.portrait-pg{display:none}.portrait-pg.on{display:block;padding:0 18px 8px}
+.port-header{text-align:center;padding:22px 0 16px}
+.port-title{font-family:‘Fredoka One’,cursive;font-size:1.9rem;color:var(–ink);margin-bottom:6px}
+.port-title span{color:var(–A)}
+.port-sub{font-size:.88rem;font-weight:700;color:var(–ink2);line-height:1.65}
+
+/* key setup */
+.key-setup{
+border-radius:22px;padding:18px 20px;margin-bottom:14px;
+background:linear-gradient(135deg,#FFFCE8,#FFF8D0);
+border:3px solid #FFE040;box-shadow:0 4px 0 #CCA000;
+}
+.ks-title{font-family:‘Fredoka One’,cursive;font-size:.9rem;color:#AA6600;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.ks-row{display:flex;gap:8px}
+.ks-input{
+flex:1;padding:11px 14px;border-radius:14px;background:rgba(255,255,255,.8);
+border:2px solid #FFD000;font-family:‘Nunito’,sans-serif;font-weight:700;
+font-size:.85rem;color:var(–ink);outline:none;-webkit-appearance:none;
+}
+.ks-input::placeholder{color:#C8A000}
+.ks-save{padding:11px 16px;border-radius:14px;border:none;cursor:pointer;-webkit-appearance:none;
+background:linear-gradient(135deg,#FF9500,#FF6B00);font-family:‘Fredoka One’,cursive;
+font-size:.85rem;color:#fff;box-shadow:0 3px 0 #AA3300;transition:all .15s var(–sp)}
+.ks-save:active{transform:translateY(3px);box-shadow:none}
+.ks-info{font-size:.73rem;font-weight:700;color:#AA7700;margin-top:6px;line-height:1.5}
+.ks-info a{color:#FF6B00;text-decoration:underline}
+
+/* upload zone */
+/* upload zone — label-based, no onclick conflicts */
+.upload-label{
+display:block;border-radius:24px;overflow:hidden;position:relative;min-height:240px;
+background:var(–white);border:3px dashed #D0D0E8;
+cursor:pointer;transition:all .2s;margin-bottom:14px;
+box-shadow:0 4px 0 #D0D0E8,0 8px 20px rgba(0,0,0,.06);
+}
+.upload-label:hover,.upload-label.drag{border-color:var(–A);background:rgba(255,107,43,.03)}
+.upload-inner{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:40px 20px;transition:opacity .3s}
+.upload-inner.hidden{display:none}
+.upload-preview{display:none;width:100%}
+.upload-preview.on{display:block}
+.upload-preview img{display:block;width:100%;border-radius:21px}
+.uo-ic{font-size:3.5rem;animation:floaty 3s ease-in-out infinite;display:block}
+.uo-t{font-family:‘Fredoka One’,cursive;font-size:1.1rem;color:var(–ink2);text-align:center}
+.uo-s{font-size:.8rem;font-weight:700;color:var(–ink3);text-align:center}
+.upload-file{display:none}
+
+/* result */
+.result-wrap{display:none;margin-bottom:14px}.result-wrap.on{display:block}
+.result-img-box{
+border-radius:22px;overflow:hidden;position:relative;
+box-shadow:0 8px 0 var(–Ad),0 16px 40px var(–Ag);
+border:4px solid var(–A);
+}
+.result-img-box img{display:block;width:100%}
+.result-label{
+position:absolute;inset-x:0;bottom:0;
+background:linear-gradient(transparent,rgba(0,0,0,.85));
+padding:40px 18px 16px;
+}
+.rl-type{font-family:‘Fredoka One’,cursive;font-size:.72rem;letter-spacing:3px;color:var(–A);margin-bottom:2px}
+.rl-name{font-family:‘Fredoka One’,cursive;font-size:1.6rem;color:#fff}
+
+.gen-btn{
+display:block;width:100%;padding:18px;border-radius:20px;border:none;cursor:pointer;
+font-family:‘Fredoka One’,cursive;font-size:1.15rem;color:#fff;-webkit-appearance:none;
+background:linear-gradient(135deg,var(–A),#FF2D78);
+box-shadow:0 6px 0 var(–Ad),0 10px 28px var(–Ag);
+transition:all .15s var(–sp);position:relative;overflow:hidden;margin-bottom:10px;
+}
+.gen-btn:active{transform:translateY(6px);box-shadow:0 0 0 var(–Ad)}
+.gen-btn:disabled{opacity:.5;pointer-events:none}
+.gen-btn.loading::after{
+content:’’;position:absolute;inset:0;
+background:linear-gradient(90deg,transparent,rgba(255,255,255,.4),transparent);
+animation:shimmer 1.4s ease-in-out infinite;
+}
+@keyframes shimmer{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
+.share-row{display:flex;gap:10px;margin-bottom:8px}
+.share-btn{
+flex:1;padding:14px;border-radius:16px;border:none;cursor:pointer;-webkit-appearance:none;
+font-family:‘Fredoka One’,cursive;font-size:.9rem;color:#fff;
+transition:all .15s var(–sp);
+}
+.share-btn:active{transform:translateY(4px)}
+.sb-share{background:linear-gradient(135deg,var(–A),#FF2D78);box-shadow:0 4px 0 var(–Ad)}
+.sb-retry{background:var(–white);border:3px solid #E0E0F0;color:var(–ink2);box-shadow:0 4px 0 #D0D0E8}
+.demo-banner{
+padding:12px 16px;border-radius:16px;margin-bottom:10px;
+background:linear-gradient(135deg,#FFFCE8,#FFF5D0);
+border:2px solid #FFE040;
+font-size:.78rem;font-weight:800;color:#886600;line-height:1.55;text-align:center;
+}
+.demo-banner a{color:#FF6B00;text-decoration:underline}
+
+/* ═══════════════════ REVEAL SCREEN ═══════════════════ */
+#s-reveal{
+justify-content:center;text-align:center;padding:48px 22px 60px;
+background:var(–bg);z-index:300;
+}
+.rev-burst{position:fixed;inset:0;pointer-events:none;z-index:1;overflow:hidden}
+.conf-p{position:absolute;font-size:1.7rem;animation:confall var(–d,3s) ease-in var(–del,0s) both}
+@keyframes confall{from{transform:translateY(-10px) rotate(0deg);opacity:1}to{transform:translateY(110vh) rotate(900deg);opacity:0}}
+.rev-inner{position:relative;z-index:2;max-width:340px;width:100%}
+.rev-orb{
+width:190px;height:190px;border-radius:50%;margin:0 auto 24px;
+display:flex;align-items:center;justify-content:center;font-size:6rem;
+position:relative;
+background:var(–white);
+box-shadow:0 12px 0 var(–Ad),0 20px 60px var(–Ag),inset 0 2px 0 rgba(255,255,255,.9);
+border:4px solid var(–A);
+animation:orbIn .8s var(–sp);
+}
+@keyframes orbIn{from{transform:scale(0) rotate(-180deg)}to{transform:scale(1) rotate(0deg)}}
+.rev-ring{
+position:absolute;inset:-8px;border-radius:50%;
+background:conic-gradient(var(–A) 0%,transparent 55%,var(–A) 100%);
+animation:ringspin 2s linear infinite;
+}
+@keyframes ringspin{to{transform:rotate(360deg)}}
+.rev-ring::after{content:’’;position:absolute;inset:6px;border-radius:50%;background:var(–bg)}
+.rev-em{position:relative;z-index:2;filter:drop-shadow(0 8px 12px var(–Ag))}
+.rev-type{font-family:‘Fredoka One’,cursive;font-size:.85rem;letter-spacing:4px;color:var(–A);margin-bottom:6px;animation:rvin .4s ease both .5s;opacity:0}
+.rev-name{font-family:‘Fredoka One’,cursive;font-size:3.2rem;color:var(–ink);margin-bottom:4px;animation:rvin .4s ease both .65s;opacity:0}
+.rev-czech{font-family:‘Fredoka One’,cursive;font-size:1.1rem;color:var(–A);margin-bottom:8px;animation:rvin .4s ease both .75s;opacity:0}
+.rev-power{font-size:.9rem;font-weight:800;color:var(–ink2);margin-bottom:12px;animation:rvin .4s ease both .85s;opacity:0}
+.rev-desc{font-size:.9rem;font-weight:700;color:var(–ink2);line-height:1.7;margin-bottom:20px;animation:rvin .4s ease both .95s;opacity:0}
+.rev-stoic{
+display:inline-flex;align-items:center;gap:8px;padding:8px 20px;border-radius:50px;
+background:linear-gradient(135deg,rgba(124,58,237,.1),rgba(255,45,120,.08));
+border:2px solid rgba(124,58,237,.2);
+font-family:‘Fredoka One’,cursive;font-size:.8rem;color:#7C3AED;
+margin-bottom:24px;animation:rvin .4s ease both 1.05s;opacity:0;
+}
+@keyframes rvin{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.rev-acts{display:flex;flex-direction:column;gap:11px;animation:rvin .4s ease both 1.15s;opacity:0}
+.ract{
+width:100%;padding:18px;border-radius:20px;border:none;cursor:pointer;
+font-family:‘Fredoka One’,cursive;font-size:1.15rem;color:#fff;-webkit-appearance:none;
+background:linear-gradient(135deg,var(–A),#FF2D78);
+box-shadow:0 6px 0 var(–Ad),0 10px 28px var(–Ag);transition:all .15s var(–sp);
+}
+.ract:active{transform:translateY(6px);box-shadow:0 0 0 var(–Ad)}
+.ract.sec{background:var(–white);border:3px solid #E0E0F0;color:var(–ink2);
+box-shadow:0 4px 0 #D0D0E8;font-size:1rem}
+.ract.sec:active{transform:translateY(4px);box-shadow:none}
+
+/* ═══════════════════ FEELINGS PAGE ═══════════════════ */
+.feelings-pg{padding:0 18px 8px}
+.feel-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px}
+.fc{
+border-radius:20px;padding:14px 10px;cursor:pointer;-webkit-appearance:none;border:none;
+background:var(–white);border:3px solid #E8E8F4;
+display:flex;flex-direction:column;align-items:center;gap:6px;
+box-shadow:0 5px 0 #D0D0E8;transition:all .18s var(–sp);
+}
+.fc:active{transform:scale(.93) translateY(5px);box-shadow:none}
+.fc.active{box-shadow:0 5px 0 var(–fc-shadow,#D0D0E8) !important}
+.fc-em{font-size:2.4rem}
+.fc-lb{font-family:‘Fredoka One’,cursive;font-size:.8rem;color:var(–ink2);text-align:center;line-height:1.3}
+
+/* response */
+.resp-panel{display:none}.resp-panel.on{display:flex;flex-direction:column;gap:12px;margin-top:4px;animation:pagein .35s var(–sp)}
+
+/* response card shared */
+.rcard{border-radius:24px;padding:22px 20px}
+.rcard-main{background:var(–white);border:3px solid #E8E8F4;box-shadow:0 5px 0 #D0D0E8}
+.rcard-em{font-size:3rem;display:block;margin-bottom:10px;animation:floaty 2.5s ease-in-out infinite}
+.rcard-title{font-family:‘Fredoka One’,cursive;font-size:1.5rem;color:var(–ink);margin-bottom:8px}
+.rcard-body{font-size:.92rem;font-weight:700;color:var(–ink2);line-height:1.72}
+.stoic-tag{
+display:inline-block;margin-top:12px;padding:5px 16px;border-radius:50px;
+font-family:‘Fredoka One’,cursive;font-size:.75rem;
+background:linear-gradient(135deg,rgba(124,58,237,.1),rgba(255,45,120,.08));
+border:2px solid rgba(124,58,237,.2);color:#7C3AED;
+}
+.rcard-quote{
+background:linear-gradient(135deg,#F5F0FF,#EEF5FF);
+border:3px solid #D8C8FF;border-left:5px solid #7C3AED;
+}
+.rq-label{font-family:‘Fredoka One’,cursive;font-size:.72rem;letter-spacing:2px;color:#7C3AED;margin-bottom:8px}
+.rq-text{font-size:.98rem;font-weight:800;font-style:italic;color:var(–ink);line-height:1.68;margin-bottom:6px}
+.rq-by{font-family:‘Fredoka One’,cursive;font-size:.82rem;color:#7C3AED}
+.rcard-practice{
+background:linear-gradient(135deg,#EAFFF8,#E0FFF5);
+border:3px solid #A0FFD8;border-top:5px solid #00C896;
+}
+.rp-label{font-family:‘Fredoka One’,cursive;font-size:.72rem;letter-spacing:2px;color:#008060;margin-bottom:10px}
+.rp-steps{list-style:none;display:flex;flex-direction:column;gap:0}
+.rp-step{display:flex;gap:12px;padding:10px 0;border-bottom:2px dashed #C0FFE8;font-size:.9rem;font-weight:700;color:var(–ink2);line-height:1.55;align-items:flex-start}
+.rp-step:last-child{border-bottom:none}
+.rp-n{
+width:28px;height:28px;border-radius:50%;flex-shrink:0;
+background:linear-gradient(135deg,#00E5A0,#00B380);
+color:#fff;font-weight:900;font-size:.75rem;display:flex;align-items:center;justify-content:center;
+box-shadow:0 3px 6px rgba(0,200,150,.3);
+}
+.rcard-alone{
+border-radius:22px;padding:18px 20px;text-align:center;
+background:linear-gradient(135deg,#FFF0F5,#FFE8F0);
+border:3px solid #FFB8D0;
+}
+.alone-ic{font-size:2rem;display:block;margin-bottom:6px}
+.alone-tx{font-size:.92rem;font-weight:800;line-height:1.65;color:var(–ink2)}
+
+/* ═══════════════════ JOURNAL PAGE ═══════════════════ */
+.journal-pg{padding:0 18px 8px}
+.jour-tabs{display:flex;background:#E8E8F4;border-radius:16px;padding:4px;gap:4px;margin-bottom:16px}
+.jt{
+flex:1;padding:10px;border:none;cursor:pointer;-webkit-appearance:none;
+font-family:‘Fredoka One’,cursive;font-size:.82rem;background:transparent;
+color:var(–ink3);border-radius:12px;transition:all .2s;
+}
+.jt.on{background:var(–white);color:var(–A);box-shadow:0 3px 0 #D0D0E8}
+.jtc{display:none}.jtc.on{display:block}
+.jlbl{font-family:‘Fredoka One’,cursive;font-size:.82rem;color:var(–ink2);margin-bottom:8px;display:block}
+.mood-row{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:14px}
+.mc{
+padding:7px 14px;border-radius:50px;background:var(–white);
+border:2px solid #E0E0F0;font-size:.82rem;font-weight:800;color:var(–ink2);
+cursor:pointer;-webkit-appearance:none;
+box-shadow:0 3px 0 #D0D0E8;transition:all .18s var(–sp);
+}
+.mc.sel{background:linear-gradient(135deg,rgba(255,107,43,.12),rgba(255,45,120,.08));border-color:var(–A);color:var(–A);box-shadow:0 3px 0 var(–Ad)}
+.j-textarea{
+width:100%;min-height:130px;background:var(–white);border:3px solid #E0E0F0;
+border-radius:18px;padding:16px 18px;font-family:‘Nunito’,sans-serif;font-weight:700;
+font-size:.92rem;color:var(–ink);line-height:1.65;resize:none;outline:none;
+-webkit-appearance:none;transition:border-color .2s;
+box-shadow:0 4px 0 #D0D0E8;
+}
+.j-textarea:focus{border-color:var(–A);box-shadow:0 4px 0 var(–Ad)}
+.j-textarea::placeholder{color:#C0C0D8}
+.priv-row{display:flex;gap:8px;margin:12px 0}
+.pb{
+flex:1;padding:12px 8px;border-radius:14px;background:var(–white);border:3px solid #E0E0F0;
+cursor:pointer;-webkit-appearance:none;font-family:‘Fredoka One’,cursive;font-size:.82rem;
+color:var(–ink3);text-align:center;box-shadow:0 4px 0 #D0D0E8;transition:all .2s var(–sp);
+}
+.pb span{display:block;font-size:1.1rem;margin-bottom:2px}
+.pb.prv{border-color:#00C896;color:#00C896;background:#EAFFF8;box-shadow:0 4px 0 #009960}
+.pb.pub{border-color:#4D96FF;color:#4D96FF;background:#EEF5FF;box-shadow:0 4px 0 #0050CC}
+.jsave{
+width:100%;padding:16px;border-radius:18px;border:none;cursor:pointer;
+font-family:‘Fredoka One’,cursive;font-size:1.1rem;color:#fff;-webkit-appearance:none;
+background:linear-gradient(135deg,#7C3AED,#4D96FF);
+box-shadow:0 5px 0 #3A1A99,0 8px 24px rgba(124,58,237,.25);
+transition:all .15s var(–sp);
+}
+.jsave:active{transform:translateY(5px);box-shadow:0 0 0 #3A1A99}
+.jflash{display:none;margin-top:10px;padding:12px 16px;border-radius:14px;
+background:#EAFFF8;border:2px solid #A0FFD8;font-size:.87rem;font-weight:800;color:#008060;text-align:center}
+.jflash.on{display:block}
+.entry-list{display:flex;flex-direction:column;gap:10px}
+.entry-item{
+background:var(–white);border:3px solid #E8E8F4;border-radius:18px;
+padding:14px 16px;position:relative;border-left:5px solid var(–A);
+box-shadow:0 3px 0 #D0D0E8;
+}
+.entry-item.pub{border-left-color:#4D96FF}
+.ei-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px}
+.ei-tag{font-size:.7rem;font-weight:900;background:rgba(255,107,43,.1);color:var(–A);padding:3px 10px;border-radius:50px;border:1px solid rgba(255,107,43,.2)}
+.ei-tag.pub{background:rgba(77,150,255,.1);color:#4D96FF;border-color:rgba(77,150,255,.2)}
+.ei-date{font-size:.65rem;font-weight:700;color:var(–ink3)}
+.ei-text{font-size:.87rem;font-weight:700;color:var(–ink2);line-height:1.55}
+.del-btn{position:absolute;top:10px;right:10px;background:none;border:none;cursor:pointer;opacity:.25;font-size:.85rem;-webkit-appearance:none}
+.empty-s{text-align:center;padding:36px 20px;color:var(–ink3)}
+.empty-s span{font-size:2.8rem;display:block;margin-bottom:8px}
+.empty-s p{font-family:‘Fredoka One’,cursive;font-size:.95rem}
+.wall-note{padding:10px 14px;background:#EEF5FF;border:2px solid #C0D8FF;
+border-radius:12px;font-size:.8rem;font-weight:800;color:#4D6EA8;margin-bottom:12px;line-height:1.5}
+
+/* settings modal */
+.modal-ov{position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.5);backdrop-filter:blur(12px);display:none;align-items:center;justify-content:center;padding:24px}
+.modal-ov.on{display:flex}
+.modal{width:100%;max-width:360px;border-radius:28px;padding:28px 24px;background:var(–white);border:3px solid #E0E0F0;box-shadow:0 20px 60px rgba(0,0,0,.2);animation:modalIn .3s var(–sp)}
+@keyframes modalIn{from{transform:scale(.88) translateY(20px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}
+.modal-title{font-family:‘Fredoka One’,cursive;font-size:1.5rem;color:var(–ink);margin-bottom:4px}
+.modal-sub{font-size:.85rem;font-weight:700;color:var(–ink2);line-height:1.6;margin-bottom:20px}
+.modal-label{font-family:‘Fredoka One’,cursive;font-size:.82rem;color:var(–ink2);margin-bottom:6px;display:block}
+.modal-input{width:100%;padding:14px 18px;border-radius:16px;background:var(–bg);border:3px solid #E0E0F0;font-family:‘Nunito’,sans-serif;font-weight:700;font-size:.9rem;color:var(–ink);outline:none;-webkit-appearance:none;margin-bottom:10px;box-shadow:inset 0 2px 4px rgba(0,0,0,.05)}
+.modal-input:focus{border-color:var(–A)}
+.modal-info{font-size:.75rem;font-weight:700;color:var(–ink3);line-height:1.55;margin-bottom:20px}
+.modal-info a{color:var(–A)}
+.modal-save{width:100%;padding:15px;border-radius:16px;border:none;cursor:pointer;font-family:‘Fredoka One’,cursive;font-size:1.05rem;color:#fff;-webkit-appearance:none;background:linear-gradient(135deg,var(–A),#FF2D78);box-shadow:0 5px 0 var(–Ad);transition:all .15s var(–sp);margin-bottom:10px}
+.modal-save:active{transform:translateY(5px);box-shadow:none}
+.modal-close{width:100%;padding:13px;border-radius:16px;border:3px solid #E0E0F0;background:none;cursor:pointer;font-family:‘Fredoka One’,cursive;font-size:.95rem;color:var(–ink2);-webkit-appearance:none}
+
+/* dots loader */
+.dots{display:inline-flex;gap:5px;align-items:center}
+.dt{width:8px;height:8px;border-radius:50%;background:var(–A);animation:dtb 1s ease-in-out infinite}
+.dt:nth-child(2){animation-delay:.15s}.dt:nth-child(3){animation-delay:.3s}
+@keyframes dtb{0%,100%{transform:translateY(0);opacity:.4}50%{transform:translateY(-6px);opacity:1}}
+</style>
+
+</head>
+<body>
+<div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
+
+<!-- ══════════ WELCOME ══════════ -->
+
+<div class="scr on" id="s-welcome">
+<div class="wlc">
+  <div class="wlc-animals">
+    <div class="wa" style="--d:0s">🦁</div><div class="wa" style="--d:.2s">🦉</div>
+    <div class="wa" style="--d:.4s">🐬</div><div class="wa" style="--d:.6s">🦋</div>
+    <div class="wa" style="--d:.8s">🐯</div><div class="wa" style="--d:1s">🦄</div>
+    <div class="wa" style="--d:1.2s">🐝</div><div class="wa" style="--d:1.4s">🦌</div>
+  </div>
+  <h1 class="wlc-title">Jaké zvíře jsi uvnitř?</h1>
+  <p class="wlc-sub">Kvíz osobnosti · Moudrost stoiků · AI portrét zvířete · Deník pocitů 🌟</p>
+  <div class="name-wrap">
+    <input class="name-field" id="nameIn" placeholder="Jak se jmenuješ? 👋" maxlength="18" autocomplete="off">
+  </div>
+  <button class="bigbtn" onclick="startApp()">🚀 Vstoupit!</button>
+  <p class="wlc-footer">Pro děti 10–15 let · Stoická moudrost · Bezpečné prostředí</p>
+</div>
+</div>
+
+<!-- ══════════ APP ══════════ -->
+
+<div class="scr" id="s-app">
+
+  <!-- HOME -->
+
+  <div class="page" id="pg-home">
+    <div class="home-pg" id="home-body"></div>
+  </div>
+
+  <!-- QUIZ -->
+
+  <div class="page" id="pg-quiz">
+    <div class="quiz-pg">
+      <div id="quiz-intro"></div>
+      <div class="qip" id="qip"></div>
+      <div class="portrait-pg" id="portrait-pg"></div>
+    </div>
+  </div>
+
+  <!-- FEELINGS -->
+
+  <div class="page" id="pg-feelings">
+    <div class="feelings-pg" id="feelings-body"></div>
+  </div>
+
+  <!-- JOURNAL -->
+
+  <div class="page" id="pg-journal">
+    <div class="journal-pg" id="journal-body"></div>
+  </div>
+
+</div>
+
+<!-- REVEAL -->
+
+<div class="scr" id="s-reveal">
+  <div class="rev-burst" id="rev-burst"></div>
+  <div class="rev-inner" id="rev-inner"></div>
+</div>
+
+<!-- SETTINGS MODAL -->
+
+<div class="modal-ov" id="modal-ov">
+<div class="modal">
+  <div class="modal-title">⚙️ Nastavení</div>
+  <p class="modal-sub">Pro AI portrét zadej fal.ai klíč — jinak funguje demo.</p>
+  <label class="modal-label">🔑 fal.ai API Key</label>
+  <input class="modal-input" id="modal-key" type="password" placeholder="fal_xxxxxxxx...">
+  <p class="modal-info">Zdarma na <a href="https://fal.ai" target="_blank">fal.ai</a>. Uložen jen v tvém prohlížeči.</p>
+  <button class="modal-save" onclick="saveSettings()">✅ Uložit</button>
+  <button class="modal-close" onclick="document.getElementById('modal-ov').classList.remove('on')">Zavřít</button>
+</div>
+</div>
+
+<!-- BOTTOM NAV -->
+
+<nav class="bnav" id="bnav">
+  <button class="nb on" id="nb-home" onclick="goTab('home')"><span class="nb-ic">🏠</span>Domů<div class="nb-pip"></div></button>
+  <button class="nb" id="nb-quiz" onclick="goTab('quiz')"><span class="nb-ic">🦁</span>Zvíře<div class="nb-pip"></div></button>
+  <button class="nb" id="nb-feelings" onclick="goTab('feelings')"><span class="nb-ic">💛</span>Pocity<div class="nb-pip"></div></button>
+  <button class="nb" id="nb-journal" onclick="goTab('journal')"><span class="nb-ic">📖</span>Deník<div class="nb-pip"></div></button>
+</nav>
+
+<script>
+/* ══════════════════════════════════════════════════
+   DATA
+══════════════════════════════════════════════════ */
+
+const ANIMALS = {
+ENTJ:{emoji:'🦁',name:'Lev',czech:'Velitel',power:'Přirozený vůdce',
+ color:'#FF6B2B',dark:'#AA2800',glow:'rgba(255,107,43,.25)',
+ desc:'Odhodlaný, sebevědomý a inspirující. Vidíš cíl a jdeš za ním. Ostatní tě přirozeně následují — ne ze strachu, ale z respektu.',
+ stoic:'Odvaha + Moudrost',
+ prompt:'a majestic lion warrior with golden mane, wearing ornate golden armor, Pixar 3D animation style, vibrant warm colors, cinematic lighting, heroic expression, white background glow',
+ particles:['👑','🔥','⚡','💪','🏆','🌟']},
+
+ENTP:{emoji:'🦊',name:'Liška',czech:'Debatér',power:'Mistr argumentů',
+ color:'#FF8C00',dark:'#884400',glow:'rgba(255,140,0,.25)',
+ desc:'Bystrý, zvídavý a tvůrčí. Vidíš věci z deseti úhlů najednou a miluješ výzvy. Nuda? To slovo neznáš.',
+ stoic:'Moudrost + Logos',
+ prompt:'a clever fox wizard with bright orange fur, wearing an autumn cloak, Pixar animation style, intelligent gleaming eyes, magical sparks, vibrant autumn colors, warm lighting',
+ particles:['🦊','💡','⚡','🎯','🔥','✨']},
+
+ESTJ:{emoji:'🦅',name:'Orel',czech:'Výkonný',power:'Mistr organizace',
+ color:'#2563EB',dark:'#0A2580',glow:'rgba(37,99,235,.22)',
+ desc:'Spolehlivý, zodpovědný a efektivní. Tebou se mohou ostatní vždy řídit. Chaos? Vidíš ho a okamžitě ho uspořádáš.',
+ stoic:'Spravedlnost + Sebeovládání',
+ prompt:'a powerful bald eagle in flight, majestic white head feathers, wearing a golden badge of honor, Pixar style, dramatic blue sky, confident and strong, vibrant colors',
+ particles:['🦅','🏛️','⚖️','💎','🌊','✨']},
+
+ESTP:{emoji:'🐯',name:'Tygr',czech:'Podnikatel',power:'Mistr akce',
+ color:'#F97316',dark:'#7A2200',glow:'rgba(249,115,22,.25)',
+ desc:'Odvážný, energický a přímočarý. Nechceš přemýšlet — chceš jednat. Plný energie a vždy ready na výzvu.',
+ stoic:'Odvaha + Sebeovládání',
+ prompt:'an energetic tiger action hero, bright orange fur with bold black stripes, dynamic running pose, Pixar animation style, jungle setting, powerful and fast, vibrant saturated colors',
+ particles:['🐯','⚡','🏃','🔥','💥','🎯']},
+
+ENFJ:{emoji:'🐬',name:'Delfín',czech:'Protagonista',power:'Srdce skupiny',
+ color:'#06B6D4',dark:'#005070',glow:'rgba(6,182,212,.22)',
+ desc:'Charismatický, empatický a inspirující. Cítíš ostatní a přirozeně je spojuješ. Tvoje energie naplňuje celou místnost.',
+ stoic:'Spravedlnost + Logos',
+ prompt:'a joyful dolphin in a sparkling ocean, leaping through rainbow waves, Pixar 3D style, glowing turquoise waters, surrounded by light bubbles, warm and happy expression, vibrant colors',
+ particles:['🐬','💙','🌊','✨','🫧','🌈']},
+
+ENFP:{emoji:'🦩',name:'Plameňák',czech:'Inspirátor',power:'Nekonečná energie',
+ color:'#EC4899',dark:'#880040',glow:'rgba(236,72,153,.25)',
+ desc:'Kreativní, nadšený a svobodný. Vidíš krásu všude a naplňuješ ostatní jiskrou. Nikdy se nebojíš být sám/sama sebou.',
+ stoic:'Amor Fati + Radost',
+ prompt:'a graceful flamingo dancer in vibrant pink plumage, tropical paradise background, Pixar style, confetti and flowers raining down, joyful and free, sunset colors, magical glow',
+ particles:['🦩','🌸','💗','✨','🌺','🎉']},
+
+ESFJ:{emoji:'🐝',name:'Včela',czech:'Konzul',power:'Srdce komunity',
+ color:'#EAB308',dark:'#705000',glow:'rgba(234,179,8,.25)',
+ desc:'Pečlivý/á, loajální a milující. Přirozeně se staráš o ostatní a buduješ komunitu. Bez tebe by svět byl chladnější.',
+ stoic:'Spravedlnost + Laskavost',
+ prompt:'an adorable bee character wearing a tiny golden crown, holding a jar of honey, Pixar style, honeycomb background, warm golden glow, cheerful and caring expression, vibrant yellow',
+ particles:['🐝','💛','🌼','🍯','✨','🌻']},
+
+ESFP:{emoji:'🦜',name:'Papoušek',czech:'Bavič',power:'Duše zábavy',
+ color:'#22C55E',dark:'#0A5020',glow:'rgba(34,197,94,.22)',
+ desc:'Zábavný, spontánní a sociální. Zbožňuješ být v centru dění a dělat ostatní šťastnými. Život je pro tebe velká show!',
+ stoic:'Radost + Přítomný okamžik',
+ prompt:'a colorful tropical parrot in vibrant rainbow feathers, performing on a stage with confetti, Pixar animation style, ultra colorful, funny and expressive face, celebration atmosphere',
+ particles:['🦜','🌈','🎉','💚','🎵','✨']},
+
+INTJ:{emoji:'🦉',name:'Sova',czech:'Architekt',power:'Strategický génius',
+ color:'#7C3AED',dark:'#3A0080',glow:'rgba(124,58,237,.22)',
+ desc:'Analytický, nezávislý a vizionářský. Vidíš vzorce tam, kde ostatní vidí chaos. Samota tě nabíjí a velké ideje tě baví.',
+ stoic:'Moudrost + Logos',
+ prompt:'a wise owl scholar surrounded by floating books and star maps, wearing a deep purple wizard robe, Pixar style, moonlit library, magical glowing eyes, stars and constellations',
+ particles:['🦉','🌙','⭐','📚','🔭','🌌']},
+
+INTP:{emoji:'🐙',name:'Chobotnice',czech:'Logik',power:'Mistr systémů',
+ color:'#4F46E5',dark:'#1A0880',glow:'rgba(79,70,229,.22)',
+ desc:'Zvídavý, analytický a vynalézavý. Tvůj mozek nikdy nepřestane pracovat. Vidíš jak věci fungují a tvoříš nová řešení.',
+ stoic:'Moudrost + Logos',
+ prompt:'a brilliant octopus scientist with 8 arms holding test tubes and blueprints, Pixar style, underwater laboratory, bioluminescent glow, intelligent expression, deep blue ocean colors',
+ particles:['🐙','💡','🔬','⚙️','🌊','✨']},
+
+INFJ:{emoji:'🦋',name:'Motýl',czech:'Advokát',power:'Hluboká intuice',
+ color:'#A855F7',dark:'#4A0088',glow:'rgba(168,85,247,.22)',
+ desc:'Idealistický, empatický a vzácný. Cítíš věci hluboko a toužíš po smysluplném světě. Máš dar transformace.',
+ stoic:'Amor Fati + Logos',
+ prompt:'a magnificent butterfly with iridescent wings spanning wide, emerging from a chrysalis in a magical forest, Pixar style, purple and violet colors, mystical atmosphere, glowing transformation',
+ particles:['🦋','✨','🌸','💜','🌙','🌟']},
+
+INFP:{emoji:'🦄',name:'Jednorožec',czech:'Mediátor',power:'Kouzelník snů',
+ color:'#F472B6',dark:'#880055',glow:'rgba(244,114,182,.22)',
+ desc:'Kreativní, idealistický a hluboce citlivý. Věříš v krásu a smysl. Tvůj vnitřní svět je bohatší než kdokoli tuší.',
+ stoic:'Amor Fati + Harmonie',
+ prompt:'a magical unicorn in a rainbow meadow, flowing iridescent mane, golden horn sparkling, Pixar 3D style, surrounded by flowers and butterflies, dreamy pastel sky, enchanted and gentle',
+ particles:['🦄','🌈','✨','💗','🌸','💫']},
+
+ISTJ:{emoji:'🐢',name:'Želva',czech:'Logistik',power:'Mistr spolehlivosti',
+ color:'#10B981',dark:'#005030',glow:'rgba(16,185,129,.22)',
+ desc:'Spolehlivý, metodický a zodpovědný. Jsi ten/ta, na koho se může každý spolehnout. Pozvolna, ale jistě — to je tvoje motto.',
+ stoic:'Sebeovládání + Trpělivost',
+ prompt:'a wise ancient tortoise with an ornate mosaic shell, wearing tiny reading glasses, Pixar style, serene forest clearing, dappled sunlight, calm and dependable, rich earth tones',
+ particles:['🐢','🍃','⏳','💚','🌿','✨']},
+
+ISTP:{emoji:'🐆',name:'Gepard',czech:'Virtuóz',power:'Mistr dovedností',
+ color:'#F59E0B',dark:'#7A4000',glow:'rgba(245,158,11,.25)',
+ desc:'Odvážný, praktický a nezávislý. Ideální řešitel problémů. Nechceš teoretizovat — chceš jednat. Rychlý a přesný.',
+ stoic:'Sebeovládání + Odvaha',
+ prompt:'a sleek cheetah mechanic with grease on paws, surrounded by futuristic gadgets and tools, Pixar style, dramatic motion blur effect, golden spots, confident and precise, warm savanna sunset',
+ particles:['🐆','⚡','🎯','🔧','💨','✨']},
+
+ISFJ:{emoji:'🐻',name:'Medvěd',czech:'Obránce',power:'Srdce ochránce',
+ color:'#D97706',dark:'#6A2A00',glow:'rgba(217,119,6,.25)',
+ desc:'Vřelý, pečující a oddaný. Chráníš ty, které máš rád/a jako nikdo jiný. Ostatní u tebe vždy najdou bezpečí a teplo.',
+ stoic:'Laskavost + Spravedlnost',
+ prompt:'a warm cozy bear wrapped in a hand-knitted sweater, holding a mug of hot cocoa, Pixar style, cozy autumn cabin setting, warm firelight, gentle and protective expression, amber tones',
+ particles:['🐻','🍯','🌿','💛','🏕️','✨']},
+
+ISFP:{emoji:'🦌',name:'Jelen',czech:'Dobrodruh',power:'Mistr přítomnosti',
+ color:'#84CC16',dark:'#3A6000',glow:'rgba(132,204,22,.22)',
+ desc:'Klidný, citlivý a umělecký. Žiješ plně přítomný/á. Máš hluboký cit pro krásu světa a svobodného ducha.',
+ stoic:'Amor Fati + Přítomnost',
+ prompt:'a graceful deer with magnificent antlers woven with flowers and vines, standing in a magical sunrise forest, Pixar style, golden morning light, peaceful and artistic, lush greens and golds',
+ particles:['🦌','🍃','🌿','🌟','🌸','✨']}
+};
+
+const QUIZ = [
+  {dim:'⚡ Energie',q:'Na party se nejraději...',a:'Mluvím se spoustou různých lidí',b:'Povídám si hlouběji s jedním nebo dvěma',aico:'🎉',bico:'🫂',dim_code:'EI'},
+  {dim:'⚡ Energie',q:'Po škole se cítím lépe, když...',a:'Jdu ven s přáteli a doplním energii',b:'Mám chvíli pro sebe a dobiji se sám/sama',aico:'🏃',bico:'🛋️',dim_code:'EI'},
+  {dim:'⚡ Energie',q:'Při skupinovém projektu...',a:'Rád/a navrhuji nápady nahlas',b:'Raději přemýšlím sám/sama, pak sdílím',aico:'📢',bico:'🤫',dim_code:'EI'},
+  {dim:'🔭 Vnímání',q:'Víc mě baví...',a:'Praktické věci, které hned použiju',b:'Teorie, nápady a co by mohlo být',aico:'🔨',bico:'💭',dim_code:'SN'},
+  {dim:'🔭 Vnímání',q:'Při čtení příběhu...',a:'Sleduji hlavně děj a co se stalo',b:'Přemýšlím o skrytém smyslu',aico:'📖',bico:'🌀',dim_code:'SN'},
+  {dim:'🔭 Vnímání',q:'Když se učím novou věc...',a:'Chci jasné kroky — jak to funguje',b:'Chci pochopit celý obraz — proč to tak je',aico:'🪜',bico:'🌐',dim_code:'SN'},
+  {dim:'💛 Rozhodování',q:'Když se kamarád trápí, nejdříve...',a:'Pomůžu mu najít konkrétní řešení',b:'Naslouchám a dám mu najevo, že ho chápu',aico:'🛠️',bico:'🤗',dim_code:'TF'},
+  {dim:'💛 Rozhodování',q:'Při rozhodování se řídím...',a:'Hlavně logikou — co dává největší smysl',b:'Hlavně srdcem — jak to cítím',aico:'🧮',bico:'❤️',dim_code:'TF'},
+  {dim:'💛 Rozhodování',q:'Jsem spíš...',a:'Spravedlivý/á soudce, který vidí fakta',b:'Laskavý/á přítel/kyně, který vidí lidi',aico:'⚖️',bico:'🌸',dim_code:'TF'},
+  {dim:'🗓️ Životní styl',q:'Plány...',a:'Miluji mít věci naplánované předem!',b:'Raději improvizuji — uvidíme, co přijde!',aico:'📋',bico:'🎲',dim_code:'JP'},
+  {dim:'🗓️ Životní styl',q:'Můj pokoj...',a:'Má své místo pro každou věc — pořádek!',b:'Je trochu chaotický, ale já vím, kde co je',aico:'🗂️',bico:'🌪️',dim_code:'JP'},
+  {dim:'🗓️ Životní styl',q:'Před testem...',a:'Učím se dlouho dopředu s plánem',b:'Učím se na poslední chvíli — stres mi pomáhá!',aico:'📅',bico:'⏰',dim_code:'JP'}
+];
+
+const FEELINGS = [
+  {id:'mean',emoji:'😤',label:'Někdo byl na mě zlý',
+   color:'#FF4757',shadow:'#AA0020',bg:'rgba(255,71,87,.1)',
+   title:'Když na tebe někdo zaútočí',
+   body:'Epiktétos říkal: jiní lidi nemůžeme ovládat — jen sebe. Jejich chování mluví o nich, ne o tobě. Ty si vybíráš, jak odpovíš.',
+   stoic:'Dichotomie kontroly',
+   quote:'Nenechávej chování jiných, aby ti ukradlo tvůj vnitřní klid.',
+   author:'Marcus Aurelius',
+   steps:['Zhluboka dýchni — třikrát. Přesunout emoce do těla.','Zeptej se: "Co v mé moci? Co ne?"','Napiš do deníku, co cítíš — bez cenzury.','Udělej jeden laskavý čin pro někoho jiného.']},
+  {id:'scared',emoji:'😨',label:'Mám strach z budoucna',
+   color:'#5352ED',shadow:'#1A0AAA',bg:'rgba(83,82,237,.1)',
+   title:'Strach žije v budoucnosti',
+   body:'Marcus Aurelius psal: strach žije jen v budoucnosti — ale my žijeme jen teď. Vrať se do přítomné chvíle. Co vidíš? Co slyšíš? Co hmatáš?',
+   stoic:'Přítomný okamžik',
+   quote:'Nezabývej se tím, co bude. Udělej, co můžeš teď.',
+   author:'Seneca',
+   steps:['Pojmenuj strach: "Bojím se, že..."','5-4-3-2-1: popiš 5 věcí, které vidíš, 4 slyšíš, 3 cítíš.','Zeptej se: "Pokud se to stane — jak se s tím vypořádám?"','Udělej jeden malý krok k čemu se bojíš.']},
+  {id:'regret',emoji:'😔',label:'Lituji něčeho',
+   color:'#747D8C',shadow:'#303540',bg:'rgba(116,125,140,.1)',
+   title:'Minulost tě učí, nevězní tě',
+   body:'Stoici věřili v Amor Fati — lásku k osudu. Každá chyba je data, ne rozsudek. Co ses z toho naučil/a?',
+   stoic:'Amor Fati',
+   quote:'Překážka na cestě se stává cestou.',
+   author:'Marcus Aurelius',
+   steps:['Napiš přesně, co lituješ — jednou větou.','Napiš, co ses z toho naučil/a.','Zeptej se: "Jaký jeden krok to napraví nebo zlepší?"','Odpusť si — nahlas nebo písemně.']},
+  {id:'family',emoji:'🏠',label:'Hádka doma',
+   color:'#FF6348',shadow:'#8B1A00',bg:'rgba(255,99,72,.1)',
+   title:'Láska a konflikty jdou spolu',
+   body:'Epiktétos říkal: v každém vztahu hledej, co chceš ty — i co potřebuje druhý. Hádka neznamená, že se nemáte rádi. Znamená, že vám na sobě záleží.',
+   stoic:'Spravedlnost',
+   quote:'Buď tvrdý na problém, měkký na lidi.',
+   author:'Marcus Aurelius',
+   steps:['Počkej 20 minut, než odpovíš v hněvu.','Napiš jejich pohled — pokus se ho pochopit.','Řekni: "Cítím... protože... a chci..."','Udělej jeden laskavý krok jako první.']},
+  {id:'alone',emoji:'😶',label:'Cítím se sám/sama',
+   color:'#2F3542',shadow:'#101520',bg:'rgba(47,53,66,.1)',
+   title:'Samota může být síla',
+   body:'Marcus Aurelius trávil hodiny sám se svými myšlenkami. Napsal Hovory k sobě právě v těchto chvílích. Samota ti dává přístup k sobě samému/é.',
+   stoic:'Logos — vnitřní hlas',
+   quote:'Nikdy se necítím méně sám, než když jsem sám.',
+   author:'Seneca',
+   steps:['Napiš do deníku: "Teď cítím..."','Vyjdi ven — příroda léčí osamělost.','Pošli zprávu jednomu kamarádovi.','Udělej něco, co tě baví — sám/sama.']},
+  {id:'angry',emoji:'😡',label:'Jsem hodně naštvaný/á',
+   color:'#FF3F34',shadow:'#8B0000',bg:'rgba(255,63,52,.1)',
+   title:'Hněv tě chce chránit',
+   body:'Hněv signalizuje, že něco považujeme za nespravedlivé. Stoici neříkali "nemysli na hněv" — říkali: nech ho projít skrz tebe, ne řídit tě.',
+   stoic:'Sebeovládání',
+   quote:'Kdo se zlobí na ostatní, odčerpává svoji vlastní sílu.',
+   author:'Epiktétos',
+   steps:['Jdi se projít nebo skákej na místě — fyzicky.','Piš rychle vše, co cítíš — žádná cenzura.','Kdy to začalo? Čeho se to dotklo?','Co chceš, aby se změnilo? Řekni to.']},
+  {id:'forgive',emoji:'🙏',label:'Neumím odpustit',
+   color:'#7BED9F',shadow:'#1A6030',bg:'rgba(123,237,159,.12)',
+   title:'Odpuštění je dar tobě',
+   body:'Odpuštění neznamená, že to, co se stalo, bylo OK. Znamená, že odmítáš nechat minulost ovlivňovat přítomnost. Osvobozuješ sebe, ne je.',
+   stoic:'Amor Fati + Svoboda',
+   quote:'Odpusť jim — ale pamatuj, co tě naučili.',
+   author:'Marcus Aurelius',
+   steps:['Napiš dopis — nikomu ho neposílej. Vylij vše.','Napiš, co tě tato situace naučila.','Řekni nahlas: "Odmítám nést tuto tíhu."','Udělej jeden krok kupředu ve svém životě.']},
+  {id:'lost',emoji:'😵',label:'Nevím, kdo jsem',
+   color:'#A29BFE',shadow:'#3A1A80',bg:'rgba(162,155,254,.12)',
+   title:'Hledání sebe je cesta, ne cíl',
+   body:'Sokrates říkal: "Poznej sebe sama." Ale sebe se poznává skrz činy, ne myšlenky. Co tě baví? Co tě zlobí? Co tě dojímá? Tam jsi ty.',
+   stoic:'Moudrost — Sophia',
+   quote:'Cesta o tisíci krocích začíná jedním krokem. Udělej ho.',
+   author:'Seneca',
+   steps:['Napiš 5 věcí, které tě baví dělat.','Napiš 3 momenty, kdy sis věřil/a.','Zeptej se: "Co bych dělal/a, kdybych se nebál/a?"','Zkus jedno nové malé dobrodružství tento týden.']},
+  {id:'pressure',emoji:'🤯',label:'Mám na sebe tlak',
+   color:'#FFA502',shadow:'#7A4000',bg:'rgba(255,165,2,.1)',
+   title:'Perfekcionismus tě unavuje',
+   body:'Stoici rozlišovali mezi tím, co záleží, a co ne. Ne každý úkol si zaslouží tvoji maximální energii. Udělej dobře to, na čem záleží. Zbytek — prostě udělej.',
+   stoic:'Sebeovládání + Priorita',
+   quote:'Udělej dobře, co teď děláš. To je dost.',
+   author:'Marcus Aurelius',
+   steps:['Napiš seznam toho, co "musíš". Seřaď podle důležitosti.','Vyber jedno — a udělej jen to.','Řekni "ne" jedné věci, která není nutná.','Odměň se za každý dokončený krok.']},
+  {id:'jealous',emoji:'😒',label:'Závidím ostatním',
+   color:'#2ED573',shadow:'#0A7030',bg:'rgba(46,213,115,.1)',
+   title:'Závist ti ukazuje tvoje touhy',
+   body:'Závist je informace — říká ti, co TY chceš. Stoici říkali: místo sledování druhých, soustřeď se na vlastní cestu. Jejich cesta není tvoje.',
+   stoic:'Moudrost + Logos',
+   quote:'Spokojenost není dosáhnout vše — ale ocenit, co máš.',
+   author:'Epiktétos',
+   steps:['Napiš: čeho závidíš? Co to říká o tvých touhách?','Napiš 5 věcí ve svém životě, za které jsi vděčný/á.','Udělej jeden krok ke svému cíli.','Pošli kompliment osobě, které závidíš.']}
+];
+
+const DAILY_QUOTES = [
+  {q:'Každý den je nová příležitost stát se lepším člověkem.',by:'Marcus Aurelius'},
+  {q:'Bolest je nezbytná. Utrpení je volitelné.',by:'Epiktétos'},
+  {q:'Neříkej málo velkými slovy, ale hodně malými.',by:'Pythagoras'},
+  {q:'Štěstí závisí na nás samých.',by:'Aristoteles'},
+  {q:'Buď změnou, kterou chceš vidět ve světě.',by:'Mahátma Gándhí'},
+  {q:'Největší dobytí je dobytí sebe sama.',by:'Platón'},
+  {q:'Upadnout je lidské. Vstát je volba.',by:'Seneca'},
+  {q:'Kdo ovládá sám sebe, ovládá vše.',by:'Epiktétos'}
+];
+
+/* ══════════════════════════════════════════════════
+   STATE
+══════════════════════════════════════════════════ */
+let playerName = '', currentType = null, photoData = null;
+let scores = {E:0,I:0,S:0,N:0,T:0,F:0,J:0,P:0};
+let qIdx = 0;
+let falKey = '';
+let generatedImageUrl = null;
+
+/* ══════════════════════════════════════════════════
+   BOOT
+══════════════════════════════════════════════════ */
+function startApp(){
+  const n = document.getElementById('nameIn').value.trim();
+  if(!n){
+    const f = document.getElementById('nameIn');
+    f.style.borderColor='#FF2D78';
+    f.placeholder='Napiš své jméno! 😊';
+    f.focus(); return;
+  }
+  playerName = n;
+  falKey = localStorage.getItem('fal_key')||'';
+  currentType = localStorage.getItem('animal_type')||null;
+
+  document.getElementById('s-welcome').classList.remove('on');
+  document.getElementById('s-app').classList.add('on');
+  document.getElementById('bnav').classList.add('on');
+
+  setAnimalCSS(currentType ? ANIMALS[currentType] : ANIMALS['ENFP']);
+  buildHome();
+  buildQuiz();
+  buildFeelings();
+  buildJournal();
+  goTab('home');
+}
+
+function setAnimalCSS(an){
+  if(!an) return;
+  document.documentElement.style.setProperty('--A', an.color);
+  document.documentElement.style.setProperty('--Ad', an.dark);
+  document.documentElement.style.setProperty('--Ag', an.glow);
+  // blobs
+  document.querySelectorAll('.blob').forEach((b,i)=>{
+    const colors = [an.color+'28', '#7C3AED20', '#06B6D420'];
+    b.style.background = colors[i]||an.color+'18';
+  });
+}
+
+/* ══════════════════════════════════════════════════
+   HOME
+══════════════════════════════════════════════════ */
+function buildHome(){
+  const an = currentType ? ANIMALS[currentType] : null;
+  const q = DAILY_QUOTES[new Date().getDay() % DAILY_QUOTES.length];
+  let html = '';
+
+  // greeting
+  html += `<div class="greeting-strip">
+    <button class="settings-ico" onclick="openSettings()">⚙️</button>
+    <div class="gs-bg">${an ? an.emoji : '🌟'}</div>
+    <div class="gs-hi">Ahoj,</div>
+    <div class="gs-name">${playerName}! 👋</div>
+    <div class="gs-sub">${an ? `Typ: ${currentType} · ${an.name}` : 'Jaké jsi zvíře?'}</div>
+  </div>`;
+
+  // animal card or nudge
+  if(an){
+    html += `<div class="animal-card">
+      <div class="ac-stripe"></div>
+      <div class="ac-top">
+        <span class="ac-emoji">${an.emoji}</span>
+        <div class="ac-meta">
+          <div class="ac-type">${currentType}</div>
+          <div class="ac-name">${an.name}</div>
+          <div class="ac-czech">${an.czech} · ${an.power}</div>
+        </div>
+      </div>
+      <div class="ac-desc">${an.desc}</div>
+      <div class="ac-stoic-pill">✦ ${an.stoic}</div>
+    </div>`;
+  } else {
+    html += `<div class="no-animal">
+      <span class="na-em">🐾</span>
+      <div class="na-t">Jaké jsi zvíře?</div>
+      <div class="na-s">Udělej rychlý kvíz a zjisti svůj osobnostní typ — pak nech AI vytvořit tvůj portrét!</div>
+      <button class="go-btn" onclick="goTab('quiz')">🦁 Jít na kvíz!</button>
+    </div>`;
+  }
+
+  // daily wisdom
+  html += `<div class="wisdom-card">
+    <div class="wc-label">✦ Moudrost dne ✦</div>
+    <div class="wc-quote">"${q.q}"</div>
+    <div class="wc-by">— ${q.by}</div>
+  </div>`;
+
+  // tiles
+  html += `<div class="tiles-row">
+    <button class="tile feel" onclick="goTab('feelings')">
+      <span class="tile-ic">💛</span>
+      <div class="tile-t">Jak se cítím?</div>
+      <div class="tile-d">Stoická moudrost pro každou emoci</div>
+    </button>
+    <button class="tile jour" onclick="goTab('journal')">
+      <span class="tile-ic">📖</span>
+      <div class="tile-t">Deník</div>
+      <div class="tile-d">Zapiš své myšlenky a pocity</div>
+    </button>
+  </div>`;
+
+  html += '<div style="height:8px"></div>';
+  document.getElementById('home-body').innerHTML = html;
+}
+
+/* ══════════════════════════════════════════════════
+   QUIZ
+══════════════════════════════════════════════════ */
+function buildQuiz(){
+  const an = currentType ? ANIMALS[currentType] : null;
+
+  // Intro
+  let intro = `<div class="qi-wrap">
+    <span class="qi-em">🎯</span>
+    <div class="qi-title">Najdi své zvíře!</div>
+    <p class="qi-sub">12 otázek → tvůj osobnostní typ → AI portrét zvířete, které jsi uvnitř! 🎨</p>
+    <div class="parade" id="animal-parade">`;
+  Object.entries(ANIMALS).forEach(([k,v])=>{
+    intro += `<div class="pa-cell"><div class="pa-em">${v.emoji}</div><div class="pa-nm">${v.name}</div></div>`;
+  });
+  intro += `</div>`;
+  if(an){
+    intro += `<div style="padding:0 0 14px;text-align:center;font-family:'Fredoka One',cursive;font-size:.9rem;color:var(--ink2)">
+      Tvoje zvíře: ${an.emoji} <span style="color:var(--A)">${an.name}</span> (${currentType})
+      <button onclick="startQuiz()" style="display:block;margin:8px auto 0;background:none;border:none;cursor:pointer;font-family:'Fredoka One',cursive;font-size:.82rem;color:var(--ink3);text-decoration:underline;-webkit-appearance:none">Udělat znovu →</button>
+    </div>`;
+  }
+  intro += `<button class="start-quiz-btn" onclick="startQuiz()">🎮 Začít kvíz!</button>`;
+  intro += `</div>`;
+  document.getElementById('quiz-intro').innerHTML = intro;
+
+  // Portrait section
+  buildPortraitSection();
+}
+
+function buildPortraitSection(){
+  const an = currentType ? ANIMALS[currentType] : null;
+  if(!an){ document.getElementById('portrait-pg').innerHTML=''; return; }
+
+  const hasKey = !!falKey;
+  let html = `<div class="port-header">
+    <div class="port-title">Staň se <span>${an.name}${['em','em','em','rem','inem','nem','lí','em','ou','icí','lem','cem','ví','dem','em','em'][Object.keys(ANIMALS).indexOf(currentType)]||'em'}!</span> 🎨</div>
+    <p class="port-sub">Nahraj svoji fotku a AI vytvoří tvůj osobní portrét jako ${an.name}!</p>
+  </div>`;
+
+  if(!hasKey){
+    html += `<div class="demo-banner">
+      🎨 Demo režim — přidej <a onclick="openSettings()">fal.ai klíč</a> pro skutečný AI portrét! 
+      Zdarma na <a href="https://fal.ai" target="_blank">fal.ai.com</a>
+    </div>`;
+  } else {
+    html += `<div class="key-setup" style="background:linear-gradient(135deg,#EAFFF8,#DDFFF0);border-color:#00C896">
+      <div class="ks-title" style="color:#008060">✅ fal.ai klíč nastaven!</div>
+      <div class="ks-info">AI portrét je připraven. <a onclick="openSettings()" style="color:#00A060">Změnit klíč →</a></div>
+    </div>`;
+  }
+
+  // Label wrapping the hidden file input — the correct HTML pattern, works on all browsers incl iOS
+  html += `<label class="upload-label" id="upload-label" for="upload-file">
+    <input type="file" accept="image/*" id="upload-file" class="upload-file" onchange="handlePhoto(event)">
+    <div class="upload-inner" id="upload-inner">
+      <span class="uo-ic">${an.emoji}</span>
+      <div class="uo-t">Klepni a nahraj svoji fotku!</div>
+      <div class="uo-s">Tvoje tvář se promění v ${an.name}a ✨</div>
+    </div>
+    <div class="upload-preview" id="upload-preview">
+      <img id="preview-img" src="" alt="Náhled">
+    </div>
+  </label>`;
+
+  html += `<div class="result-wrap" id="result-wrap">
+    <div class="result-img-box">
+      <img id="result-img" src="" alt="AI portrét">
+      <div class="result-label">
+        <div class="rl-type">${currentType}</div>
+        <div class="rl-name">${playerName} — ${an.name}</div>
+      </div>
+    </div>
+  </div>`;
+
+  // Button NOT disabled — photo check happens inside generatePortrait
+  html += `<button class="gen-btn" id="gen-btn" onclick="generatePortrait()">
+    ${an.emoji} Vygenerovat portrét!
+  </button>`;
+
+  html += `<div class="share-row" id="share-row" style="display:none">
+    <button class="share-btn sb-share" onclick="shareResult()">📤 Sdílet!</button>
+    <label class="share-btn sb-retry" for="upload-file" style="display:flex;align-items:center;justify-content:center;cursor:pointer">📷 Nová fotka</label>
+  </div>`;
+
+  document.getElementById('portrait-pg').innerHTML = html;
+}
+
+function handlePhoto(e){
+  const f = e.target.files[0]; if(!f) return;
+  window._photoFile = f; // keep original File for FormData (avoids iOS DataCloneError)
+  const r = new FileReader();
+  r.onload = ev => {
+    photoData = ev.target.result;
+    // Show preview — hide the prompt text, show the image
+    const inner = document.getElementById('upload-inner');
+    const preview = document.getElementById('upload-preview');
+    const previewImg = document.getElementById('preview-img');
+    if(inner) inner.classList.add('hidden');
+    if(preview && previewImg){
+      previewImg.src = photoData;
+      preview.classList.add('on');
+    }
+    // Update button to make clear the next step
+    const btn = document.getElementById('gen-btn');
+    if(btn){
+      const an = ANIMALS[currentType];
+      btn.innerHTML = `${an ? an.emoji : '🎨'} Fotka nahrána — klepni pro generování!`;
+      btn.style.animation = 'none';
+      // brief bounce to draw attention
+      requestAnimationFrame(()=>{
+        btn.style.transform='scale(1.04)';
+        setTimeout(()=>{ btn.style.transform=''; }, 200);
+      });
+    }
+    // Smooth scroll to button
+    setTimeout(()=>{ btn && btn.scrollIntoView({behavior:'smooth', block:'nearest'}); }, 150);
+  };
+  r.readAsDataURL(f);
+}
+
+async function generatePortrait(){
+  const an = ANIMALS[currentType];
+  const btn = document.getElementById('gen-btn');
+
+  if(!photoData){
+    // Flash the upload zone to guide the user
+    const label = document.getElementById('upload-label');
+    if(label){
+      label.style.borderColor = 'var(--A)';
+      label.style.transform = 'scale(1.02)';
+      setTimeout(()=>{ label.style.borderColor=''; label.style.transform=''; }, 600);
+    }
+    btn.innerHTML = `📷 Nejdřív nahraj fotku výše!`;
+    setTimeout(()=>{ btn.innerHTML = `${an.emoji} Vygenerovat portrét!`; }, 1800);
+    return;
+  }
+
+  btn.disabled = true;
+  btn.classList.add('loading');
+
+  if(!falKey){
+    // Demo mode — clear message + styled placeholder card
+    btn.innerHTML = '🎨 Demo režim — generuji ukázku...';
+    await new Promise(r=>setTimeout(r,1800));
+    showDemoResult(an);
+    btn.classList.remove('loading');
+    btn.disabled = false;
+    btn.style.display='none';
+    document.getElementById('share-row').style.display='flex';
+    return;
+  }
+
+  try{
+    // ── STEP 1: Use base64 data URL directly — no upload needed ──────────────
+    // fal.ai models accept base64 data URLs as image_url, avoiding all CORS issues
+    btn.innerHTML = '<span class="dots"><span class="dt"></span><span class="dt"></span><span class="dt"></span></span> Připravuji...';
+    const imageUrl = photoData; // base64 data URL passed directly
+
+    // ── STEP 2: Generate — base64 sent directly in JSON body ────────────────
+    btn.innerHTML = '<span class="dots"><span class="dt"></span><span class="dt"></span><span class="dt"></span></span> AI magie probíhá... ✨';
+    const genResp = await fetch('https://fal.run/fal-ai/fast-sdxl/image-to-image', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json', 'Authorization': 'Key ' + falKey},
+      body: JSON.stringify({
+        image_url: imageUrl,
+        prompt: an.prompt + ', portrait of the person in the photo as this animal character, Pixar 3D animation style, vibrant, safe for children, fun, expressive',
+        negative_prompt: 'scary, violent, gore, nsfw, ugly, blurry, deformed',
+        strength: 0.7,
+        num_inference_steps: 4,
+        num_images: 1
+      })
+    });
+    const genData = await genResp.json();
+    console.log('fal.ai response:', JSON.stringify(genData));
+    const resultUrl = genData?.images?.[0]?.url || genData?.image?.url || genData?.output?.images?.[0]?.url;
+    if(!resultUrl) throw new Error('Generation failed: ' + JSON.stringify(genData));
+
+    // ── STEP 4: Show result ──────────────────────────────────────────
+    generatedImageUrl = resultUrl;
+    const img = document.getElementById('result-img');
+    img.src = resultUrl;
+    img.onload = () => {
+      document.getElementById('result-wrap').classList.add('on');
+      img.scrollIntoView({behavior:'smooth', block:'nearest'});
+    };
+    document.getElementById('share-row').style.display='flex';
+
+  } catch(err){
+    console.error('fal.ai error:', err);
+    // Show error + fallback to demo
+    btn.innerHTML = '⚠️ Chyba — zkouším záložní režim...';
+    await new Promise(r=>setTimeout(r,800));
+    showDemoResult(an);
+    // Show the error message in a small note
+    const note = document.createElement('div');
+    note.style.cssText='padding:10px 14px;background:#FFF0F0;border:2px solid #FFB0B0;border-radius:12px;font-size:.75rem;color:#AA3333;margin-bottom:8px;word-break:break-all;line-height:1.5';
+    note.textContent = '⚠️ Chyba API: ' + err.message + ' — zkontroluj svůj fal.ai klíč v nastavení.';
+    const shareRow = document.getElementById('share-row');
+    shareRow.parentNode.insertBefore(note, shareRow);
+    document.getElementById('share-row').style.display='flex';
+  }
+
+  btn.classList.remove('loading');
+  btn.disabled = false;
+  btn.style.display='none';
+}
+
+function showDemoResult(an){
+  // Build a proper demo card that composites the user's photo with the animal theme
+  const cv = document.createElement('canvas');
+  cv.width=400; cv.height=500;
+  const ctx = cv.getContext('2d');
+
+  // Parse animal color for gradients
+  const hex = an.color;
+  const r=parseInt(hex.slice(1,3),16), g=parseInt(hex.slice(3,5),16), b=parseInt(hex.slice(5,7),16);
+
+  // Background gradient
+  const bg = ctx.createLinearGradient(0,0,400,500);
+  bg.addColorStop(0,`rgba(${r},${g},${b},.18)`);
+  bg.addColorStop(1,`rgba(${r},${g},${b},.04)`);
+  ctx.fillStyle='#FAFAFE'; ctx.fillRect(0,0,400,500);
+  ctx.fillStyle=bg; ctx.fillRect(0,0,400,500);
+
+  // Draw user photo if available
+  const drawCard = (photoImg) => {
+    // Photo circle clipped
+    if(photoImg){
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(200, 170, 130, 0, Math.PI*2);
+      ctx.clip();
+      // cover-fit the photo
+      const pr = photoImg.naturalWidth/photoImg.naturalHeight;
+      let sw,sh,sx,sy;
+      if(pr>1){sh=photoImg.naturalHeight;sw=sh;sx=(photoImg.naturalWidth-sw)/2;sy=0}
+      else{sw=photoImg.naturalWidth;sh=sw;sx=0;sy=(photoImg.naturalHeight-sh)/2}
+      ctx.drawImage(photoImg,sx,sy,sw,sh,70,40,260,260);
+      ctx.restore();
+    }
+
+    // Circular border with animal color
+    ctx.strokeStyle=an.color; ctx.lineWidth=6;
+    ctx.beginPath(); ctx.arc(200,170,132,0,Math.PI*2); ctx.stroke();
+    // Glow ring
+    ctx.strokeStyle=an.color+'44'; ctx.lineWidth=18;
+    ctx.beginPath(); ctx.arc(200,170,144,0,Math.PI*2); ctx.stroke();
+
+    // Big animal emoji overlay (bottom-right of circle)
+    ctx.font='56px serif'; ctx.textAlign='center';
+    ctx.fillText(an.emoji, 300, 272);
+
+    // White card band at bottom
+    ctx.fillStyle='#FFFFFF'; ctx.fillRect(0,318,400,182);
+    // Colored top edge
+    ctx.fillStyle=an.color; ctx.fillRect(0,318,400,5);
+
+    // Type code
+    ctx.font='700 13px Fredoka One, sans-serif';
+    ctx.fillStyle=an.color; ctx.fillText(currentType, 200, 345);
+    // Name
+    ctx.font='800 36px Fredoka One, sans-serif';
+    ctx.fillStyle='#1A1A2E'; ctx.fillText(an.name, 200, 386);
+    // Superpower
+    ctx.font='700 15px Nunito, sans-serif';
+    ctx.fillStyle='#5A5A7A'; ctx.fillText('⚡ '+an.power, 200, 412);
+    // Player name
+    ctx.font='700 13px Nunito, sans-serif';
+    ctx.fillStyle='#9999BB'; ctx.fillText(playerName, 200, 434);
+    // Stoic
+    ctx.fillStyle=an.color+'22';
+    ctx.beginPath(); ctx.roundRect(130,446,140,22,11); ctx.fill();
+    ctx.font='700 11px Nunito, sans-serif';
+    ctx.fillStyle=an.color; ctx.fillText('✦ '+an.stoic+' ✦', 200, 461);
+    // Demo watermark
+    ctx.font='600 10px Nunito, sans-serif';
+    ctx.fillStyle='#CCCCDD'; ctx.fillText('DEMO · Přidej fal.ai klíč pro skutečný AI portrét', 200, 490);
+
+    const url = cv.toDataURL('image/png');
+    generatedImageUrl = url;
+    document.getElementById('result-img').src = url;
+    document.getElementById('result-wrap').classList.add('on');
+    setTimeout(()=>document.getElementById('result-wrap').scrollIntoView({behavior:'smooth',block:'nearest'}),100);
+  };
+
+  if(photoData){
+    const img = new Image();
+    img.onload = () => drawCard(img);
+    img.onerror = () => drawCard(null);
+    img.src = photoData;
+  } else {
+    // No photo — just show big emoji + animal info
+    ctx.font='110px serif'; ctx.textAlign='center'; ctx.fillText(an.emoji, 200, 220);
+    drawCard(null);
+  }
+}
+
+function shareResult(){
+  if(!generatedImageUrl) return;
+  const a = document.createElement('a');
+  a.download = `zvire-${currentType}-${playerName}.png`;
+  a.href = generatedImageUrl;
+  a.click();
+}
+
+/* ══════════════════════════════════════════════════
+   QUIZ ENGINE
+══════════════════════════════════════════════════ */
+function startQuiz(){
+  scores = {E:0,I:0,S:0,N:0,T:0,F:0,J:0,P:0};
+  qIdx = 0;
+  document.getElementById('quiz-intro').style.display='none';
+  document.getElementById('portrait-pg').classList.remove('on');
+  const qip = document.getElementById('qip');
+  qip.classList.add('on');
+  renderQ();
+}
+
+function renderQ(){
+  const q = QUIZ[qIdx];
+  const pct = Math.round(((qIdx)/QUIZ.length)*100);
+  document.getElementById('qip').innerHTML = `
+    <div class="q-bar-wrap">
+      <div class="q-bar"><div class="q-fill" style="width:${pct}%"></div></div>
+      <div class="q-meta">
+        <span class="q-num">Otázka ${qIdx+1} z ${QUIZ.length}</span>
+        <span class="q-dim-tag">${q.dim}</span>
+      </div>
+    </div>
+    <div class="q-card">
+      <div class="q-qnum">Otázka ${qIdx+1}</div>
+      <div class="q-qtext">${q.q}</div>
+      <div class="q-opts">
+        <button class="qo" onclick="pickAnswer('A')">
+          <span class="qo-lbl">A</span>
+          <span class="qo-ico">${q.aico}</span>
+          ${q.a}
+        </button>
+        <button class="qo" onclick="pickAnswer('B')">
+          <span class="qo-lbl">B</span>
+          <span class="qo-ico">${q.bico}</span>
+          ${q.b}
+        </button>
+      </div>
+    </div>`;
+}
+
+function pickAnswer(choice){
+  const q = QUIZ[qIdx];
+  if(q.dim_code==='EI') choice==='A'?scores.E++:scores.I++;
+  else if(q.dim_code==='SN') choice==='A'?scores.S++:scores.N++;
+  else if(q.dim_code==='TF') choice==='A'?scores.T++:scores.F++;
+  else choice==='A'?scores.J++:scores.P++;
+
+  const btns = document.querySelectorAll('.qo');
+  btns[choice==='A'?0:1].classList.add('picked');
+  setTimeout(()=>{
+    qIdx++;
+    if(qIdx < QUIZ.length) renderQ();
+    else finishQuiz();
+  }, 300);
+}
+
+function calcType(){
+  let t='';
+  t += scores.E>=scores.I?'E':'I';
+  t += scores.S>=scores.N?'S':'N';
+  t += scores.T>=scores.F?'T':'F';
+  t += scores.J>=scores.P?'J':'P';
+  return t;
+}
+
+function finishQuiz(){
+  const type = calcType();
+  currentType = type;
+  localStorage.setItem('animal_type', type);
+  const an = ANIMALS[type];
+  setAnimalCSS(an);
+
+  document.getElementById('qip').classList.remove('on');
+  document.getElementById('quiz-intro').style.display='';
+
+  // FULL SCREEN REVEAL
+  const burst = document.getElementById('rev-burst');
+  burst.innerHTML = '';
+  an.particles.forEach((em,i)=>{
+    for(let j=0;j<4;j++){
+      const el=document.createElement('span');el.className='conf-p';el.textContent=em;
+      el.style.cssText=`left:${Math.random()*100}%;--d:${2+Math.random()*3}s;--del:${i*.12+j*.35}s;font-size:${1.3+Math.random()*1.2}rem`;
+      burst.appendChild(el);
+    }
+  });
+
+  document.getElementById('rev-inner').innerHTML = `
+    <div class="rev-orb" style="border-color:${an.color};box-shadow:0 12px 0 ${an.dark},0 20px 60px ${an.glow}">
+      <div class="rev-ring" style="background:conic-gradient(${an.color} 0%,transparent 55%,${an.color} 100%)"></div>
+      <span class="rev-em">${an.emoji}</span>
+    </div>
+    <div class="rev-type">${type}</div>
+    <div class="rev-name" style="color:${an.color}">${an.name}</div>
+    <div class="rev-czech">${an.czech}</div>
+    <div class="rev-power">⚡ ${an.power}</div>
+    <div class="rev-desc">${an.desc}</div>
+    <div class="rev-stoic">✦ ${an.stoic}</div>
+    <div class="rev-acts">
+      <button class="ract" style="background:linear-gradient(135deg,${an.color},#FF2D78)" onclick="goPortrait()">
+        🎨 Vytvořit AI portrét ${an.name}a!
+      </button>
+      <button class="ract sec" onclick="closeReveal()">Zpět na domovskou stránku</button>
+    </div>`;
+
+  document.getElementById('s-reveal').classList.add('on');
+  buildHome();
+}
+
+function goPortrait(){
+  document.getElementById('s-reveal').classList.remove('on');
+  buildPortraitSection();
+  document.getElementById('portrait-pg').classList.add('on');
+  goTab('quiz', true);
+  document.getElementById('quiz-intro').style.display='none';
+}
+
+function closeReveal(){
+  document.getElementById('s-reveal').classList.remove('on');
+  buildHome();
+  goTab('home');
+}
+
+/* ══════════════════════════════════════════════════
+   FEELINGS
+══════════════════════════════════════════════════ */
+let activeFeeling = null;
+
+function buildFeelings(){
+  let html = `<div class="sec-header"><div class="sec-title">💛 Jak se cítíš?</div></div>
+  <p class="sec-sub">Klepni na pocit — dostaneš stoickou moudrost, která ti pomůže.</p>
+  <div class="feel-grid">`;
+
+  FEELINGS.forEach(f => {
+    html += `<button class="fc" id="fc-${f.id}" onclick="showFeeling('${f.id}')"
+      style="--fc-shadow:${f.color}80">
+      <span class="fc-em">${f.emoji}</span>
+      <span class="fc-lb">${f.label}</span>
+    </button>`;
+  });
+  html += `</div><div class="resp-panel" id="resp-panel"></div>`;
+  document.getElementById('feelings-body').innerHTML = html;
+}
+
+function showFeeling(id){
+  const f = FEELINGS.find(x=>x.id===id);
+  if(!f) return;
+  activeFeeling = id;
+
+  // highlight card
+  document.querySelectorAll('.fc').forEach(c=>{
+    c.classList.remove('active');
+    c.style.borderColor='';c.style.background='';
+  });
+  const card = document.getElementById('fc-'+id);
+  card.classList.add('active');
+  card.style.borderColor = f.color;
+  card.style.background = f.bg;
+  card.style.boxShadow = `0 5px 0 ${f.shadow}`;
+
+  const an = currentType ? ANIMALS[currentType] : null;
+  const panel = document.getElementById('resp-panel');
+  panel.innerHTML = `
+    <div class="rcard rcard-main">
+      <span class="rcard-em">${f.emoji}</span>
+      <div class="rcard-title">${f.title}</div>
+      <div class="rcard-body">${f.body}</div>
+      <div class="stoic-tag">✦ ${f.stoic}</div>
+    </div>
+
+    <div class="rcard rcard-quote">
+      <div class="rq-label">💜 MOUDRÝ FILOSOF ŘÍKÁ</div>
+      <div class="rq-text">"${f.quote}"</div>
+      <div class="rq-by">— ${f.author}</div>
+    </div>
+
+    <div class="rcard rcard-practice">
+      <div class="rp-label">🟢 VYZKOUŠEJ TO TEĎ</div>
+      <ul class="rp-steps">
+        ${f.steps.map((s,i)=>`<li class="rp-step"><span class="rp-n">${i+1}</span><span>${s}</span></li>`).join('')}
+      </ul>
+    </div>
+
+    ${an ? `<div class="rcard-alone">
+      <span class="alone-ic">${an.emoji}</span>
+      <div class="alone-tx">Tvůj ${an.name} říká: Jsi silnější, než si myslíš. Tahle emoce tě nezahubí — učí tě. Vydržíš! 💪</div>
+    </div>` : `<div class="rcard-alone">
+      <span class="alone-ic">🌟</span>
+      <div class="alone-tx">Pamatuj: to, co cítíš, je normální. Každý to zažívá. Nejsi sám/sama. 💛</div>
+    </div>`}
+
+    <button onclick="buildFeelings()" style="display:block;width:100%;padding:14px;border-radius:16px;border:3px solid #E0E0F0;background:var(--white);cursor:pointer;font-family:'Fredoka One',cursive;font-size:.95rem;color:var(--ink2);-webkit-appearance:none;box-shadow:0 4px 0 #D0D0E8;transition:all .15s var(--sp);margin-bottom:8px">
+      ← Jiný pocit
+    </button>`;
+
+  panel.classList.add('on');
+  setTimeout(()=>panel.scrollIntoView({behavior:'smooth',block:'nearest'}),100);
+}
+
+/* ══════════════════════════════════════════════════
+   JOURNAL
+══════════════════════════════════════════════════ */
+const MOODS = ['😊 Šťastný/á','😔 Smutný/á','😤 Naštvaný/á','😨 Vystrašený/á','😴 Unavený/á','🤩 Nadšený/á','😌 V klidu','🤔 Přemýšlím'];
+let jPriv = true;
+
+function buildJournal(){
+  let entries = getEntries();
+  const pubEntries = entries.filter(e=>e.pub);
+
+  let html = `<div class="sec-header"><div class="sec-title">📖 Deník</div></div>
+  <p class="sec-sub">Zapiš své myšlenky — soukromě nebo sdílej s ostatními.</p>
+  <div class="jour-tabs">
+    <button class="jt on" id="jt-write" onclick="jTab('write')">✏️ Psát</button>
+    <button class="jt" id="jt-mine" onclick="jTab('mine')">📚 Moje</button>
+    <button class="jt" id="jt-wall" onclick="jTab('wall')">🌍 Nástěnka</button>
+  </div>
+
+  <div class="jtc on" id="jtc-write">
+    <span class="jlbl">Jak se teď cítíš?</span>
+    <div class="mood-row">${MOODS.map(m=>`<button class="mc" onclick="selMood(this)">${m}</button>`).join('')}</div>
+    <textarea class="j-textarea" id="j-text" placeholder="Napiš cokoli... Je to jen tvoje. 🌟" rows="5"></textarea>
+
+```
+<div class="priv-row">
+  <button class="pb prv" id="pb-priv" onclick="setPriv(true)"><span>🔒</span>Soukromý</button>
+  <button class="pb" id="pb-pub" onclick="setPriv(false)"><span>🌍</span>Sdílet</button>
+</div>
+<button class="jsave" onclick="saveEntry()">💾 Uložit do deníku</button>
+<div class="jflash" id="jflash">✅ Uloženo! Dobrá práce! 🌟</div>
+```
+
+  </div>
+
+  <div class="jtc" id="jtc-mine">
+    ${entries.length===0
+      ? `<div class="empty-s"><span>📝</span><p>Zatím žádné zápisky.<br>Napiš svůj první!</p></div>`
+      : `<div class="entry-list">${entries.map((e,i)=>entryHTML(e,i,false)).join('')}</div>`}
+  </div>
+
+  <div class="jtc" id="jtc-wall">
+    <div class="wall-note">🌍 Sdílené zápisky — anonymní tipy a myšlenky od ostatních dětí.</div>
+    ${pubEntries.length===0
+      ? `<div class="empty-s"><span>🌟</span><p>Zatím nic sdíleného.<br>Buď první!</p></div>`
+      : `<div class="entry-list">${pubEntries.map((e,i)=>entryHTML(e,i,true)).join('')}</div>`}
+  </div>`;
+
+document.getElementById(‘journal-body’).innerHTML = html;
+}
+
+function entryHTML(e,i,wall){
+const isPub = e.pub;
+return `<div class="entry-item ${isPub?'pub':''}"> <div class="ei-top"> <span class="ei-tag ${isPub?'pub':''}">${e.mood||'💭'}</span> <span class="ei-date">${new Date(e.ts).toLocaleDateString('cs-CZ')}</span> </div> <div class="ei-text">${e.text.substring(0,200)}${e.text.length>200?'...':''}</div> ${!wall?`<button class="del-btn" onclick="delEntry(${i})">🗑️</button>`:’’}
+
+  </div>`;
+}
+
+function jTab(t){
+[‘write’,‘mine’,‘wall’].forEach(x=>{
+document.getElementById(‘jt-’+x)?.classList.toggle(‘on’,x===t);
+document.getElementById(‘jtc-’+x)?.classList.toggle(‘on’,x===t);
+});
+if(t===‘mine’||t===‘wall’) buildJournal();
+}
+
+function selMood(btn){
+document.querySelectorAll(’#jtc-write .mc’).forEach(b=>b.classList.remove(‘sel’));
+btn.classList.add(‘sel’);
+}
+
+function setPriv(priv){
+jPriv = priv;
+document.getElementById(‘pb-priv’).className=‘pb’+(priv?’ prv’:’’);
+document.getElementById(‘pb-pub’).className=‘pb’+(!priv?’ pub’:’’);
+}
+
+function saveEntry(){
+const text = document.getElementById(‘j-text’).value.trim();
+const mood = document.querySelector(’#jtc-write .mc.sel’)?.textContent||’’;
+if(!text) return;
+const entries = getEntries();
+entries.unshift({text,mood,pub:!jPriv,ts:Date.now(),name:playerName});
+localStorage.setItem(‘journal_v6’, JSON.stringify(entries));
+document.getElementById(‘j-text’).value=’’;
+document.querySelectorAll(’#jtc-write .mc’).forEach(b=>b.classList.remove(‘sel’));
+const fl=document.getElementById(‘jflash’);fl.classList.add(‘on’);
+setTimeout(()=>fl.classList.remove(‘on’),2500);
+}
+
+function delEntry(i){
+const entries=getEntries();entries.splice(i,1);
+localStorage.setItem(‘journal_v6’,JSON.stringify(entries));
+buildJournal();
+}
+
+function getEntries(){
+try{return JSON.parse(localStorage.getItem(‘journal_v6’)||’[]’)}catch{return []}
+}
+
+/* ══════════════════════════════════════════════════
+SETTINGS
+══════════════════════════════════════════════════ */
+function openSettings(){
+document.getElementById(‘modal-key’).value = falKey;
+document.getElementById(‘modal-ov’).classList.add(‘on’);
+}
+function saveSettings(){
+falKey = document.getElementById(‘modal-key’).value.trim();
+localStorage.setItem(‘fal_key’, falKey);
+document.getElementById(‘modal-ov’).classList.remove(‘on’);
+buildPortraitSection();
+}
+
+/* ══════════════════════════════════════════════════
+NAV
+══════════════════════════════════════════════════ */
+function goTab(tab, skipAnim){
+[‘home’,‘quiz’,‘feelings’,‘journal’].forEach(t=>{
+document.getElementById(‘pg-’+t).classList.toggle(‘on’,t===tab);
+document.getElementById(‘nb-’+t).classList.toggle(‘on’,t===tab);
+});
+if(!skipAnim) window.scrollTo({top:0, behavior:‘smooth’});
+}
+</script>
+
+</body>
+</html>
